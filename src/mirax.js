@@ -1025,3 +1025,189 @@ mx.plugin.load('dom', function() {
         return new Dom(selector);
     };
 });
+
+
+/**
+ * Storage manager
+ */
+mx.plugin.load('storage', function () {
+    /**
+     * Is local storage available
+     * @returns {*}
+     */
+    function isLocalStorageAvailable() {
+        return window.hasOwnProperty('localStorage');
+    }
+
+    /**
+     * Is session storage available
+     * @returns {*}
+     */
+    function isSessionStorageAvailable() {
+        return window.hasOwnProperty('sessionStorage');
+    }
+
+    /**
+     * LocalStorage manager
+     * @type {{}}
+     */
+    var local = {
+        available: isLocalStorageAvailable,
+        get: function (key, defaultVal) {
+            if ( !isLocalStorageAvailable() ) {
+                console.warn('Local storage is not supports');
+            }
+
+            if ( localStorage.hasOwnProperty(key) && !!localStorage.getItem(key) ) {
+                return localStorage.getItem(key);
+            }
+
+            return defaultVal || null;
+        },
+        set: function (key, val) {
+            if ( !isLocalStorageAvailable() ) {
+                console.warn('Local storage is not supports');
+            }
+
+            localStorage.setItem(key, val);
+        },
+        keys: function () {
+            if ( !isLocalStorageAvailable() ) {
+                console.warn('Local storage is not supports');
+            }
+
+            return Object.keys(localStorage);
+        },
+        remove: function (key) {
+            if ( !isLocalStorageAvailable() ) {
+                console.warn('Local storage is not supports');
+            }
+
+            if ( localStorage.hasOwnProperty(key) && !!localStorage.getItem(key) ) {
+                localStorage.removeItem(key);
+                return true;
+            }
+
+            return false;
+        },
+        contains: function (key) {
+            if ( !isLocalStorageAvailable() ) {
+                console.warn('Local storage is not supports');
+            }
+
+            return localStorage.hasOwnProperty(key);
+        }
+    };
+
+    /**
+     * Session storage manager
+     * @type {{}}
+     */
+    var session = {
+        available: isSessionStorageAvailable,
+        get: function (key, defaultVal) {
+            if ( !isSessionStorageAvailable() ) {
+                console.warn('Session storage is not supports');
+            }
+
+            if ( sessionStorage.hasOwnProperty(key) && !!sessionStorage.getItem(key) ) {
+                return sessionStorage.getItem(key);
+            }
+
+            return defaultVal || null;
+        },
+        set: function (key, val) {
+            if ( !isSessionStorageAvailable() ) {
+                console.warn('Session storage is not supports');
+            }
+
+            sessionStorage.setItem(key, val);
+        },
+        keys: function () {
+            if ( !isSessionStorageAvailable() ) {
+                console.warn('Session storage is not supports');
+            }
+
+            return Object.keys(sessionStorage);
+        },
+        remove: function (key) {
+            if ( !isSessionStorageAvailable() ) {
+                console.warn('Session storage is not supports');
+            }
+
+            if ( sessionStorage.hasOwnProperty(key) && !!sessionStorage.getItem(key) ) {
+                sessionStorage.removeItem(key);
+                return true;
+            }
+
+            return false;
+        },
+        contains: function (key) {
+            if ( !isSessionStorageAvailable() ) {
+                console.warn('Session storage is not supports');
+            }
+
+            return sessionStorage.hasOwnProperty(key);
+        }
+    };
+
+    /**
+     * Cookie manager
+     * @type {{set: cookie.set}}
+     */
+    var cookie = {
+        set: function(key, val, exp, path) {
+            var date = new Date();
+            date.setTime(date.getTime() + ((exp||1)*24*60*60*1000));
+            var expires = "expires=" + date.toUTCString();
+            document.cookie = key + "=" + val + ";" + expires + ";path=" + (path||"/");
+        },
+        get: function (key, defaultVal) {
+            var name = key + "=";
+            var cookies = document.cookie.split(';');
+
+            for(var i = 0; i < cookies.length; i++) {
+                var cook = cookies[i];
+
+                while ( cook.charAt(0) == ' ' ) {
+                    cook = cook.substring(1);
+                }
+
+                if ( cook.indexOf(name) == 0 ) {
+                    return cook.substring(name.length, cook.length);
+                }
+            }
+
+            return defaultVal||null;
+        },
+        contains: function (key) {
+            return document.cookie.indexOf(key + "=") >= 0;
+        },
+        keys: function () {
+            var cookies = document.cookie.split(';'),
+                keys = [];
+
+            for ( var i = 0; i < cookies.length; i++ ) {
+                keys.push(cookies[i].split('=')[0].trim());
+            }
+
+            return keys;
+        },
+        remove: function (key) {
+            if ( document.cookie.indexOf(key + "=") == -1 ) {
+                return false;
+            }
+
+            var date = new Date();
+            date.setTime(date.getTime() - (24*60*60*1000));
+            var expires = "expires=" + date.toUTCString();
+            document.cookie = key + "=;" + expires + ";path=/";
+        }
+    };
+
+    return {
+        local: local,
+        session: session,
+        cookie: cookie
+    }
+});
