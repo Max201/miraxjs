@@ -150,3 +150,50 @@ Example:
 	mx.dom('a').text() // Array object of all links on the page
 	mx.dom('form#login').form() // Object of form data
 	...
+
+
+**mx.storage** - object that can help you to manage any javascript storage.
+--
+**mx.storage** can manage localStorage, sessionStorage and Cookies. All of the storages has following methods:
+
+ - **mx.storage.[STORAGE_TYPE].set(key, value)** - Sets item into storage
+ - **mx.storage.[STORAGE_TYPE].get(key, defaultValue)** - Gets an item from storage
+ - **mx.storage.[STORAGE_TYPE].contains(key)** - Returns true if key is exists in current storage
+ - **mx.storage.[STORAGE_TYPE].keys()** - Returns list of all available keys
+ - **mx.storage.[STORAGE_TYPE].remove(key)** - Will remove item from storage
+ 
+Only in **mx.storage.local**:
+
+ - **mx.storage.local.available()** - returns true if localStorage is available
+ 
+Only in **mx.storage.session**:
+
+ - **mx.storage.session.available()** - returns true if sessionStorage is available
+ 
+Only in **mx.storage.cookie**:
+
+ - **mx.storage.cookie.set(key, value [, expdays, path])** - has four parameters instead of two.
+ 
+Supported storage types:
+
+ - cookie
+ - session
+ - local
+ 
+Examples:
+
+    // Local storage
+    
+    mx.storage.local.set('hello', 'world');
+    mx.storage.local.get('hello'); // 'world'
+    
+    mx.storage.local.contains('hello'); // true
+    
+    mx.storage.local.remove('hello');
+    mx.storage.local.contains('hello'); // false
+    
+    // Cookies
+    mx.storage.cookie.set('hello', 'world');
+    mx.storage.cookie.keys(); // ['hello']
+    
+    mx.storage.cookie.get('hello'); // 'world' 
