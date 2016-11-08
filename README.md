@@ -197,3 +197,13 @@ Examples:
     mx.storage.cookie.keys(); // ['hello']
     
     mx.storage.cookie.get('hello'); // 'world' 
+    
+**mx.render** - object that can help you to make animations via js
+--
+**mx.render.start(callback)** - this will recursively call requestAnimationFrame and take two arguments - dt (deltatime from last frame) and fps (frames per second)
+
+**mx.render.stop()** - will stop all animations called via mx.render.start()
+
+**mx.render.step(from, to, time, dt)** - will call value for current frame that must be changed
+    
+ 

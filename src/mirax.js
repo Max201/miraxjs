@@ -40,6 +40,7 @@ var Mirax = function () {
 };
 window.mx = new Mirax();
 
+
 /**
  * Random string generator
  */
@@ -1048,6 +1049,26 @@ mx.plugin.load('storage', function () {
     }
 
     /**
+     * Crossbrowser indexed db
+     * @returns {{db: *, transaction: *, keyrange: *}}
+     */
+    function idb() {
+        return {
+            db: window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || false,
+            transaction: indow.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || false,
+            keyrange: window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange || false
+        }
+    }
+
+    /**
+     * Is indexedDB available
+     * @returns {boolean}
+     */
+    function isIndexedDBAvailable() {
+        return !!idb().db;
+    }
+
+    /**
      * LocalStorage manager
      * @type {{}}
      */
@@ -1209,5 +1230,40 @@ mx.plugin.load('storage', function () {
         local: local,
         session: session,
         cookie: cookie
+    }
+});
+
+
+/**
+ * Crossbrowsing request animation frame
+ */
+mx.plugin.load('render', function () {
+    var requester = requestAnimationFrame || mozRequestAnimationFrame || msRequestAnimationFrame || webkitRequestAnimationFrame;
+    return {
+        start: function (callback) {
+            function requestFrame(dt, fps) {
+                var lastUpdate = Date.now();
+                mx.func(callback)(dt || 0, fps || 999);
+                if ( !mx._render_animations_stop ) {
+                    return requester(function(){
+                        var now = Date.now();
+                        var dt = now - lastUpdate;
+                        requestFrame(dt, parseInt(1000 / dt));
+                    });
+                } else {
+                    mx._render_animations_stop = false;
+                }
+            }
+
+            return requestFrame();
+        },
+        stop: function () {
+            mx._render_animations_stop = true;
+        },
+        step: function (start, end, speed, dt) {
+            speed = speed || 1000;
+            var diff = end - start;
+            return diff / speed * dt;
+        }
     }
 });
